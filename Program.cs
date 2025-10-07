@@ -7,90 +7,70 @@ namespace LabWork
     // Необхідно змінювати і дописувати код лише в цьому проекті
     // Відео-інструкції щодо роботи з github можна переглянути 
     // за посиланням https://www.youtube.com/@ViktorZhukovskyy/videos 
-    public class Polygon
+
+class Sphere
+{
+    protected double b1, b2, b3, R;
+
+    public virtual void SetCoefficients(double b1, double b2, double b3, double R)
     {
-        protected (double x, double y)[] vertices;
-        public virtual void SetVertices(params (double x, double y)[] coords)
-        {
-            vertices = coords;
-        }
-        public virtual void PrintVertices()
-        {
-            for (int i = 0; i < vertices.Length; i++)
-            {
-                Console.WriteLine($"Vertex {i + 1}: ({vertices[i].x}, {vertices[i].y})");
-            }
-        }
-        public virtual double Area()
-        {
-            // Shoelace formula for convex polygons
-            double area = 0;
-            int n = vertices.Length;
-            for (int i = 0; i < n; i++)
-            {
-                var (x1, y1) = vertices[i];
-                var (x2, y2) = vertices[(i + 1) % n];
-                area += (x1 * y2 - x2 * y1);
-            }
-            return Math.Abs(area) / 2.0;
-        }
+        this.b1 = b1;
+        this.b2 = b2;
+        this.b3 = b3;
+        this.R = R;
     }
 
-    public class Triangle : Polygon
+    public virtual void PrintCoefficients()
     {
-        public override void SetVertices(params (double x, double y)[] coords)
-        {
-            if (coords.Length != 3)
-                throw new ArgumentException("Triangle must have 3 vertices.");
-            base.SetVertices(coords);
-        }
-        public override void PrintVertices()
-        {
-            Console.WriteLine("Triangle vertices:");
-            base.PrintVertices();
-        }
-        public override double Area()
-        {
-            return base.Area();
-        }
+        Console.WriteLine($"b1 = {b1}, b2 = {b2}, b3 = {b3}, R = {R}");
     }
 
-    public class ConvexQuadrilateral : Polygon
+    public virtual double Volume()
     {
-        public override void SetVertices(params (double x, double y)[] coords)
-        {
-            if (coords.Length != 4)
-                throw new ArgumentException("Quadrilateral must have 4 vertices.");
-            base.SetVertices(coords);
-        }
-        public override void PrintVertices()
-        {
-            Console.WriteLine("Convex Quadrilateral vertices:");
-            base.PrintVertices();
-        }
-        public override double Area()
-        {
-            return base.Area();
-        }
+        return (4.0 / 3.0) * Math.PI * Math.Pow(R, 3);
+    }
+}
+
+class Ellipsoid : Sphere
+{
+    protected double a1, a2, a3;
+
+    public void SetCoefficients(double b1, double b2, double b3, double a1, double a2, double a3)
+    {
+        base.SetCoefficients(b1, b2, b3, 0); // R не використовується
+        this.a1 = a1;
+        this.a2 = a2;
+        this.a3 = a3;
     }
 
-    class Delta
+    public override void PrintCoefficients()
     {
-        static void Main(string[] args)
-        {
-            // Трикутник
-            Triangle triangle = new Triangle();
-            triangle.SetVertices((0, 0), (4, 0), (0, 3));
-            triangle.PrintVertices();
-            Console.WriteLine($"Triangle area: {triangle.Area()}");
-
-            Console.WriteLine();
-
-            // Опуклий чотирикутник
-            ConvexQuadrilateral quad = new ConvexQuadrilateral();
-            quad.SetVertices((0, 0), (4, 0), (5, 3), (1, 4));
-            quad.PrintVertices();
-            Console.WriteLine($"Convex Quadrilateral area: {quad.Area()}");
-        }
+        Console.WriteLine($"b1 = {b1}, b2 = {b2}, b3 = {b3}, a1 = {a1}, a2 = {a2}, a3 = {a3}");
     }
+
+    public override double Volume()
+    {
+        return (4.0 / 3.0) * Math.PI * a1 * a2 * a3;
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        // Куля
+        Sphere sphere = new Sphere();
+        sphere.SetCoefficients(1, 2, 3, 5); // b1, b2, b3, R
+        Console.WriteLine("Коефіцієнти кулі:");
+        sphere.PrintCoefficients();
+        Console.WriteLine($"Об'єм кулі: {sphere.Volume():F2}");
+
+        // Еліпсоїд
+        Ellipsoid ellipsoid = new Ellipsoid();
+        ellipsoid.SetCoefficients(1, 2, 3, 4, 5, 6); // b1, b2, b3, a1, a2, a3
+        Console.WriteLine("\nКоефіцієнти еліпсоїда:");
+        ellipsoid.PrintCoefficients();
+        Console.WriteLine($"Об'єм еліпсоїда: {ellipsoid.Volume():F2}");
+    }
+}
 }
