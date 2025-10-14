@@ -2,75 +2,98 @@
 
 namespace LabWork
 {
-    // Даний проект є шаблоном для виконання лабораторних робіт
-    // з курсу "Об'єктно-орієнтоване програмування та патерни проектування"
-    // Необхідно змінювати і дописувати код лише в цьому проекті
-    // Відео-інструкції щодо роботи з github можна переглянути 
-    // за посиланням https://www.youtube.com/@ViktorZhukovskyy/videos 
+    // Заміна предметної області: додаємо абстракцію Shape та конкретні фігури
 
-class Sphere
-{
-    protected double b1, b2, b3, R;
-
-    public virtual void SetCoefficients(double b1, double b2, double b3, double R)
+    public readonly record struct Point(double X, double Y)
     {
-        this.b1 = b1;
-        this.b2 = b2;
-        this.b3 = b3;
-        this.R = R;
+        public override string ToString() => $"({X}, {Y})";
     }
 
-    public virtual void PrintCoefficients()
+    public abstract class Shape
     {
-        Console.WriteLine($"b1 = {b1}, b2 = {b2}, b3 = {b3}, R = {R}");
+        protected Point[] vertices;
+
+        protected Shape(Point[] vertices)
+        {
+            this.vertices = vertices ?? Array.Empty<Point>();
+        }
+
+        // Обчислити площу фігури
+        public abstract double Area();
+
+        // Вивести вершини фігури
+        public virtual void PrintVertices()
+        {
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                Console.WriteLine($"V{i + 1}: {vertices[i]}");
+            }
+        }
     }
 
-    public virtual double Volume()
+    public class Triangle : Shape
     {
-        return (4.0 / 3.0) * Math.PI * Math.Pow(R, 3);
-    }
-}
+        public Triangle(Point a, Point b, Point c) : base(new[] { a, b, c }) { }
 
-class Ellipsoid : Sphere
-{
-    protected double a1, a2, a3;
+        public override double Area()
+        {
+            // Площа через формулу шнурка (shoelace) для трьох вершин
+            var v = vertices;
+            double area = Math.Abs((v[0].X * (v[1].Y - v[2].Y)
+                                  + v[1].X * (v[2].Y - v[0].Y)
+                                  + v[2].X * (v[0].Y - v[1].Y)) / 2.0);
+            return area;
+        }
 
-    public void SetCoefficients(double b1, double b2, double b3, double a1, double a2, double a3)
-    {
-        base.SetCoefficients(b1, b2, b3, 0); // R не використовується
-        this.a1 = a1;
-        this.a2 = a2;
-        this.a3 = a3;
-    }
-
-    public override void PrintCoefficients()
-    {
-        Console.WriteLine($"b1 = {b1}, b2 = {b2}, b3 = {b3}, a1 = {a1}, a2 = {a2}, a3 = {a3}");
+        public override void PrintVertices()
+        {
+            Console.WriteLine("Triangle vertices:");
+            base.PrintVertices();
+        }
     }
 
-    public override double Volume()
+    public class ConvexQuadrilateral : Shape
     {
-        return (4.0 / 3.0) * Math.PI * a1 * a2 * a3;
-    }
-}
+        public ConvexQuadrilateral(Point a, Point b, Point c, Point d) : base(new[] { a, b, c, d }) { }
 
-class Program
-{
-    static void Main(string[] args)
+        public override double Area()
+        {
+            // Загальна формула шнурка (shoelace) для довільного опуклого чотирикутника
+            var v = vertices;
+            double sum = 0;
+            for (int i = 0; i < v.Length; i++)
+            {
+                int j = (i + 1) % v.Length;
+                sum += v[i].X * v[j].Y - v[j].X * v[i].Y;
+            }
+            return Math.Abs(sum) / 2.0;
+        }
+
+        public override void PrintVertices()
+        {
+            Console.WriteLine("Convex quadrilateral vertices:");
+            base.PrintVertices();
+        }
+    }
+
+    class Program
     {
-        // Куля
-        Sphere sphere = new Sphere();
-        sphere.SetCoefficients(1, 2, 3, 5); // b1, b2, b3, R
-        Console.WriteLine("Коефіцієнти кулі:");
-        sphere.PrintCoefficients();
-        Console.WriteLine($"Об'єм кулі: {sphere.Volume():F2}");
+        static void Main(string[] args)
+        {
+            // Демонстрація Triangle
+            var triangle = new Triangle(new Point(0, 0), new Point(4, 0), new Point(0, 3));
+            triangle.PrintVertices();
+            Console.WriteLine($"Area: {triangle.Area():F2}\n");
 
-        // Еліпсоїд
-        Ellipsoid ellipsoid = new Ellipsoid();
-        ellipsoid.SetCoefficients(1, 2, 3, 4, 5, 6); // b1, b2, b3, a1, a2, a3
-        Console.WriteLine("\nКоефіцієнти еліпсоїда:");
-        ellipsoid.PrintCoefficients();
-        Console.WriteLine($"Об'єм еліпсоїда: {ellipsoid.Volume():F2}");
+            // Демонстрація ConvexQuadrilateral
+            var quad = new ConvexQuadrilateral(
+                new Point(0, 0),
+                new Point(4, 0),
+                new Point(5, 3),
+                new Point(0, 4)
+            );
+            quad.PrintVertices();
+            Console.WriteLine($"Area: {quad.Area():F2}");
+        }
     }
-}
 }
