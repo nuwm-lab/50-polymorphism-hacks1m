@@ -53,7 +53,7 @@ public class ConvexQuadrilateral : Triangle
 
     public override void SetVertices(params Point[] pts)
     {
-          if (pts == null || pts.Length < 4)
+        if (pts == null || pts.Length < 4)
             throw new ArgumentException("потрібно 4 точки!");
         base.SetVertices(pts[0], pts[1], pts[2]);
         D = pts[3];
@@ -76,28 +76,99 @@ public class ConvexQuadrilateral : Triangle
 
 public class Program
 {
+    public static Point InputPoint(string name)
+    {
+        Console.WriteLine($"Введіть координати точки {name}:");
+        double x, y;
+        while (true)
+        {
+            Console.Write($"  X {name}: ");
+            if (double.TryParse(Console.ReadLine(), out x))
+            break;
+            Console.WriteLine("ПОМИЛКА! Введіть число");
+        }
+        while (true)
+        {
+            Console.Write($"  Y {name}: ");
+            if (double.TryParse(Console.ReadLine(), out y))
+            break;
+            Console.WriteLine("ПОМИЛКА! Введіть число");
+        }
+        return new Point {X = x , Y = y};
+    }
     public static void Main(string[] args)
     {
+        //автовибір
         Point p1 = new Point { X = 1, Y = 1 };
         Point p2 = new Point { X = 5, Y = 1 };
         Point p3 = new Point { X = 3, Y = 4 };
         Point p4 = new Point { X = 7, Y = 3 };
-
+        Console.WriteLine("Виберіть режим введення координат:");
+        Console.WriteLine("1 - Автовибір;");
+        Console.WriteLine("2 - Ручний вибір.");
+        Console.Write("Ваш вибір: ");
+        string modeInput = Console.ReadLine();
+        if (int.TryParse(modeInput,out int mode) && mode == 2)
+        {
+            Console.WriteLine("\nРучний вибір: ");
+            p1 = InputPoint("A: ");
+            p2 = InputPoint("B: ");
+            p3 = InputPoint("C: ");
+            p4 = InputPoint("D: ");
+        }
+        else if (mode == 1)
+        {
+            Console.WriteLine("\nАвтовибір:");
+            Console.WriteLine($"A: {p1}");
+            Console.WriteLine($"B: {p2}");
+            Console.WriteLine($"C: {p3}");
+            Console.WriteLine($"D: {p4}");
+        }
+        else
+        {
+            Console.WriteLine("ПОМИЛКА! Використовується автовибір.");
+        }
+        Console.WriteLine("\nВибір фігури: ");
+        Console.WriteLine("1 - трикутник;");
+        Console.WriteLine("2 - опуклий чотирикутник.");
+        Console.Write("Ваш вибір: ");
+        string shapeInput = Console.ReadLine();
+        if (int.TryParse(modeInput, out int choice))
+        {
+         if (choice == 1)   
+        {
         Console.WriteLine("___ 1. Робота з трикутником ___");
         Triangle triangle = new Triangle(p1, p2, p3);
         triangle.DisplayVertices();
         double triangleArea = triangle.CalculateArea();
-        Console.WriteLine($"-> Обчислена Площа Трикутника: {triangleArea:F2}\n");
-
+        Console.WriteLine($"-> Обчислена Площа Трикутника: {triangleArea:F2}");
+        Console.WriteLine("___________________________________________________________");
+        Console.WriteLine("Приклад роботи полімірфізму:");
+        Triangle poly1 = new ConvexQuadrilateral(p1, p2, p3, p4);
+        poly1.DisplayVertices();
+        }
+        else if (choice == 2)
+        {
         Console.WriteLine("___ 2. Робота з Опуклим чотирикутником ___");
         ConvexQuadrilateral quadrilateral = new ConvexQuadrilateral(p1, p2, p3, p4);
         quadrilateral.DisplayVertices();
         double quadrilateralArea = quadrilateral.CalculateArea();
         Console.WriteLine($"-> Обчислена Площа Чотирикутника: {quadrilateralArea:F2}");
-
-        Triangle poly = new ConvexQuadrilateral(p1, p2, p3, p4);
-        poly.DisplayVertices();
-
+        Console.WriteLine("___________________________________________________________");
+        Console.WriteLine("Приклад роботи полімірфізму:");
+        Triangle poly2 = new ConvexQuadrilateral(p1, p2, p3, p4);
+        poly2.DisplayVertices();
+        }
+        else
+            {
+                Console.WriteLine("ПОМИЛКА! Введіть одне з чисел: 1 або 2");
+            }
+        }
+        else
+            {
+                Console.WriteLine("ПОМИЛКА! Введено не число");
+            }
+        Console.WriteLine("\nНатисніть будь яку клавішу для завершення...");
         Console.ReadKey();
     }
 }
