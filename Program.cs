@@ -142,7 +142,7 @@ public class Program
         triangle.DisplayVertices();
         double triangleArea = triangle.CalculateArea();
         Console.WriteLine($"-> Обчислена Площа Трикутника: {triangleArea:F2}");
-        Console.WriteLine("___________________________________________________________");
+        Console.WriteLine("_______________________________________________________");
         Console.WriteLine("Приклад роботи полімірфізму:");
         Triangle poly1 = new ConvexQuadrilateral(p1, p2, p3, p4);
         poly1.DisplayVertices();
